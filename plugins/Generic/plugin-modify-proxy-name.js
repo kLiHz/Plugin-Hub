@@ -177,7 +177,7 @@ const onSubscribe = async (proxies) => {
     const keywordsToEmoji = Object.entries(KeywordsToEmoji).map(([t, f]) => [new RegExp(t, 'i'), f]);
     if (isGFS) {
       // 修改代理数组，根据节点名称添加对应的 emoji
-      proxies = proxies.map((v, i) => {
+      for (const v of proxies) {
         let shouldAddEmoji = true // Flag to track whether emoji should be added
         for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy tag matches any keywords
@@ -196,11 +196,10 @@ const onSubscribe = async (proxies) => {
             break // Break out of loop after the first match
           }
         }
-        return shouldAddEmoji ? v : { ...v } // If emoji should not be added, return original, otherwise return modified proxy
-      })
+      }
     } else if (isGFC) {
       // 修改代理数组，根据节点名称添加对应的 emoji
-      proxies = proxies.map((v, i) => {
+      for (const v of proxies) {
         let shouldAddEmoji = true // Flag to track whether emoji should be added
         for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy name matches any keywords
@@ -214,8 +213,7 @@ const onSubscribe = async (proxies) => {
             break // Break out of loop after the first match
           }
         }
-        return shouldAddEmoji ? v : { ...v } // If emoji should not be added, return original, otherwise return modified proxy
-      })
+      }
     }
   }
 
