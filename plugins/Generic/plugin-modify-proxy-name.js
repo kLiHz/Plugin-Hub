@@ -174,29 +174,12 @@ const onSubscribe = async (proxies) => {
   const isGFC = Plugins.APP_TITLE.includes('Clash')
 
   if (EnableAddEmoji == 1) {
-    const SubKeywordsToEmoji = {}
-    for (const keyword in KeywordsToEmoji) {
-      const emoji = KeywordsToEmoji[keyword]
-      const Keywords = keyword.split('|')
-      Keywords.forEach((word) => (SubKeywordsToEmoji[word] = emoji))
-    }
-
-    // 按子关键词长度从长到短排序
-    const SortedKeywordsToEmoji = Object.fromEntries(
-      Object.entries(SubKeywordsToEmoji).sort((a, b) => {
-        if (a[0].length === b[0].length) {
-          return a[0].localeCompare(b[0]) // 使用关键词的字典顺序进行比较
-        }
-        return b[0].length - a[0].length // 按照长度从长到短排序
-      })
-    )
-
+    const keywordsToEmoji = Object.entries(KeywordsToEmoji).map(([t, f]) => [new RegExp(t, 'i'), f]);
     if (isGFS) {
       // 修改代理数组，根据节点名称添加对应的 emoji
       proxies = proxies.map((v, i) => {
-        const lowercasetag = v.tag.toLowerCase()
         // Check if the proxy tag already starts with an emoji
-        const codePoint = lowercasetag.codePointAt(0)
+        const codePoint = v.tag.codePointAt(0)
         if (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF) {
             const emoji = v.tag.slice(0, 4)
             if (v.tag[emoji.length] != ' ') {
@@ -204,11 +187,9 @@ const onSubscribe = async (proxies) => {
             }
             return v
         }
-        for (const keywords in SortedKeywordsToEmoji) {
-          const regex = new RegExp(keywords, 'i')
+        for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy tag matches any keywords
-          if (regex.test(lowercasetag)) {
-            const emoji = SortedKeywordsToEmoji[keywords]
+          if (regex.test(v.tag)) {
             v.tag = emoji + ' ' + v.tag // Add emoji and space before the proxy tag
             break // Break out of loop after the first match
           }
@@ -218,13 +199,10 @@ const onSubscribe = async (proxies) => {
     } else if (isGFC) {
       // 修改代理数组，根据节点名称添加对应的 emoji
       proxies = proxies.map((v, i) => {
-        const lowercaseName = v.name.toLowerCase()
         let shouldAddEmoji = true // Flag to track whether emoji should be added
-        for (const keywords in SortedKeywordsToEmoji) {
-          const regex = new RegExp(keywords, 'i')
+        for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy name matches any keywords
-          if (regex.test(lowercaseName)) {
-            const emoji = SortedKeywordsToEmoji[keywords]
+          if (regex.test(v.name)) {
             // Check if the proxy name already starts with an emoji
             if (v.name.startsWith(emoji)) {
               shouldAddEmoji = false // If the proxy name already has an emoji, do not add another one
