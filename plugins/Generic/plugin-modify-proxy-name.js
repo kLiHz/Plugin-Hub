@@ -165,8 +165,11 @@ const KeywordsToEmoji = {
   // 添加更多的国家关键词和对应的 Emoji
 }
 
+const codePointIsCountryFlagCode = (c) => { return c >= 0x1F1E6 && c <= 0x1F1FF; }
+
 const onSubscribe = async (proxies) => {
   const EnableAddEmoji = Plugin.EnableAddEmoji
+  const overrideEmoji = true;
   const EnableRemoveKeywords = Plugin.EnableRemoveKeywords
   const EnableIndexProxyName = Plugin.EnableIndexProxyName
 
@@ -178,17 +181,16 @@ const onSubscribe = async (proxies) => {
     if (isGFS) {
       // 修改代理数组，根据节点名称添加对应的 emoji
       for (const v of proxies) {
-        let shouldAddEmoji = true // Flag to track whether emoji should be added
         for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy tag matches any keywords
           if (regex.test(v.tag)) {
             // Check if the proxy tag already starts with an emoji
-            if (v.tag.startsWith(emoji)) {
-              shouldAddEmoji = false // If the proxy tag already has an emoji, do not add another one
-              if (v.tag[emoji.length] == ' ') {
-                shouldAddEmoji = false // If the proxy tag already has an emoji, do not add another one
+            if (codePointIsCountryFlagCode(v.tag.codePointAt(0)) && codePointIsCountryFlagCode(v.tag.codePointAt(2))) {
+              const currentEmoji = v.tag.slice(0, 4);
+              if (v.tag[currentEmoji.length] == ' ') {
+                v.tag = (overrideEmoji ? emoji : currentEmoji) + v.tag.slice(currentEmoji.length)
               } else {
-                v.tag = emoji + ' ' + v.tag.slice(emoji.length)
+                v.tag = (overrideEmoji ? emoji : currentEmoji) + ' ' + v.tag.slice(currentEmoji.length)
               }
             } else {
               v.tag = emoji + ' ' + v.tag // Add emoji and space before the proxy tag
