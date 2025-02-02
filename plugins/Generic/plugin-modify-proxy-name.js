@@ -181,7 +181,7 @@ const onSubscribe = async (proxies) => {
     if (isGFS) {
       // 修改代理数组，根据节点名称添加对应的 emoji
       for (const v of proxies) {
-        for (const [regex, emoji] in keywordsToEmoji) {
+        for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy tag matches any keywords
           if (regex.test(v.tag)) {
             // Check if the proxy tag already starts with an emoji
@@ -203,7 +203,7 @@ const onSubscribe = async (proxies) => {
       // 修改代理数组，根据节点名称添加对应的 emoji
       for (const v of proxies) {
         let shouldAddEmoji = true // Flag to track whether emoji should be added
-        for (const [regex, emoji] in keywordsToEmoji) {
+        for (const [regex, emoji] of keywordsToEmoji) {
           // Check if the proxy name matches any keywords
           if (regex.test(v.name)) {
             // Check if the proxy name already starts with an emoji
